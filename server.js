@@ -1,11 +1,11 @@
 const express = require('express');
 const app = express();
 
-const cfg = require('./config.json');
+const cfg = require('./config/config.json');
 const fmp = require('financialmodelingprep')(cfg.apiKey)
 const api = require('./DataBuilder/api.js');
 
-const tst = require('./DataBuilder/DataBuilder.js');
+const Stocks = require('./DataBuilder/ModelBuilder.js');
 
 
 app.listen(cfg.port, () => {
@@ -15,21 +15,28 @@ app.listen(cfg.port, () => {
 app.get('/', async (req, res) => {
 
    api.getTopHundred().then((companies) => {
-      try {
-         let tmp = new tst.DataBulder(stocks = ['AAPL', 'GOOG'], inputs = ['priceToOperatingCashFlowsRatio', 'currentRatio'], outputs = [], period='annual');
+    
+         console.log(companies)
+         let model = new Stocks.ModelBuilder();
+         model.addOutputs(['priceToOperatingCashFlowsRatio']);
+         model.addStocks(companies.slice(0,30));
 
-         tmp.generateData().then((s) => {
+         model.addInputs(['totalDebtToCapitalization']);
+         model.addInputs(['returnOnEquity']);
+         model.addInputs(['symbol']);
+         model.addInputs(['date']);
+         model.generateData().then((s) => {
             console.log(s)
-         })
-      }
-      catch(err) {
-         console.log(err.message)
-       //  res.send(err.message);
-      }
+         });
+      
+
    
    
       res.send('All Good')
 
+   })
+   .catch((err) => {
+      console.log(err.message)
    });
 
 

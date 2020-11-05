@@ -1,5 +1,5 @@
 const http = require('axios');
-const cfg = require('../config.json');
+const cfg = require('../config/config.json');
 
 
 /**
