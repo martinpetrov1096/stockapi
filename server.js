@@ -3,14 +3,9 @@ const app = express();
 
 const cfg = require('./config.json');
 const fmp = require('financialmodelingprep')(cfg.apiKey)
-const myApi = require('./api.js');
+const api = require('./DataBuilder/api.js');
 
-let cmpns = []
-myApi.getTopHundred()
-   .then((apiRes) => {
-      cmpns = apiRes;
-      //console.log(cmpns)
-   });
+const tst = require('./DataBuilder/DataBuilder.js');
 
 
 app.listen(cfg.port, () => {
@@ -19,12 +14,24 @@ app.listen(cfg.port, () => {
 
 app.get('/', async (req, res) => {
 
-   console.log(cmpns)
+   api.getTopHundred().then((companies) => {
+      try {
+         let tmp = new tst.DataBulder(stocks = ['AAPL', 'GOOG'], inputs = ['priceToOperatingCashFlowsRatio', 'currentRatio'], outputs = [], period='annual');
 
-   res.send('Hello World!');
+         tmp.generateData().then((s) => {
+            console.log(s)
+         })
+      }
+      catch(err) {
+         console.log(err.message)
+       //  res.send(err.message);
+      }
+   
+   
+      res.send('All Good')
 
-   fmp.stock(cmpns).financial.income().then(response => console.log(response));
-   //   fmp.stock(cmpns[0]).quote().then(response => console.log(response));
+   });
+
 
 
 });
