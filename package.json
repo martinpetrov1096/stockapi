@@ -18,12 +18,12 @@
   "homepage": "https://github.com/martinpetrov1096/stockapi#readme",
   "dependencies": {
     "axios": "^0.21.0",
+    "axios-cache-adapter": "^2.5.0",
     "boxen": "^4.2.0",
     "chalk": "^4.1.0",
-    "express": "^4.17.1",
-    "financialmodelingprep": "^1.1.0",
     "inquirer": "^7.3.3",
     "json-2-csv": "^3.7.8",
+    "localforage": "^1.9.0",
     "yargs": "^16.1.0"
   }
 }
