@@ -1,16 +1,20 @@
 
 const api = require('./api.js');
+const cfg = require('../config/config.json');
 const paramRatios = require('../config/paramRatios.json');
 const tickerNames = require('../config/nasdaqTickerNames.json');
 
-
-
 // Returns a Promise that resolves after "ms" Milliseconds
-const timer = ms => new Promise(res => setTimeout(res, ms))
-
+const timer = ms => new Promise(res => setTimeout(res, ms));
 
 class ModelBuilder {
 
+   /**
+    * @inputs The input params for the model
+    * @outputs What the model should predict
+    * @stocks The names of the companies you want to grab data for
+    * @period Either 'quarter' or 'annual'
+    */
    #inputs = null;
    #outputs = null;
    #stocks = null;
@@ -77,7 +81,7 @@ class ModelBuilder {
       this.#stocks = new Set([...stocks, ...this.#stocks]);
    }
 
-   async generateData() {
+   async generateModel() {
       /* Make sure inputs, outputs, and stocks are valid */
       if (this.#stocks.size == 0)
          throw new Error('Cannot generate model with no stocks');
@@ -86,19 +90,39 @@ class ModelBuilder {
       if (this.#outputs.size == 0)
          throw new Error('Cannot generate model with no outputs');
 
-      let data = [];
+      let model = [];
+      /* Iterate through each company */
       for (var stock of this.#stocks) {
-         data = data.concat(api.getRatios(stock,'annual', null).then((quarterRatios) => {
-            return quarterRatios.map((quarterRatio) => [...this.#inputs].map((k) => {
-               return quarterRatio[k];
-            }));
+         /* Get the all of the ratios for the company */
+         model = model.concat(api.getRatios(stock, this.#period).then((company) => {
+            /* Iterate through each quarter for the campany */
+            company.forEach((companyQuarter) => {
+               /* If there is a ratio not in our inputs,
+                * delete it, except if it is the company's
+                * symbol or the quarter date */
+               for (let ratio in companyQuarter) {
+                  if (![...this.#inputs].includes(ratio) && ratio != 'date' && ratio != 'symbol') {
+                     delete companyQuarter[ratio];
+                  }
+               }
+            });
+            return company;
          }));
-
          /* Wait 100ms between each request to avoid timeout */
-         await timer(100);
+         await timer(cfg.apiTimer);
       };
-      return Promise.all(data);
+
+      /* Flatten array and return it */
+      return Promise.all(model).then(m => {
+         return m.flat();
+      });
    }
+
+   toCSV() {
+
+      
+   }
+
 
    removeInputs() {
       throw new Error("TODO");

@@ -33,7 +33,7 @@ module.exports.getBalance= (stockName) => {
 
 }
 
-module.exports.getRatios = async (stockName, period = 'quarter', limit = 300) => {
+module.exports.getRatios = async (stockName, period = 'quarter', limit = 3) => {
 
    return http.get(cfg.apiUrl + 'ratios/' + stockName, {
       params: {
