@@ -2,13 +2,23 @@
 const inquirer = require('inquirer');
 const fs = require('fs');
 
-const stockTickers = require('./config/nasdaqTickerNames.json');
-const modelInputs = require('./config/paramRatios.json');
-const api = require('./DataBuilder/api.js');
-const Stocks = require('./DataBuilder/ModelBuilder.js');
+const stockTickers = require('./ModelBuilder/config/nasdaqTickerNames.json');
+const paramsRatios = require('./ModelBuilder/config/paramsRatios.json');
+const paramsBalance = require('./ModelBuilder/config/paramsBalance.json');
+const paramsIncome = require('./ModelBuilder/config/paramsIncome.json');
+const paramsCustom = require('./ModelBuilder/config/paramsCustom.json');
+const api = require('./ModelBuilder/api.js');
+const Stocks = require('./ModelBuilder/ModelBuilder.js');
 
 let model = new Stocks.ModelBuilder();
 model.addOutputs(['daysOfPayablesOutstanding']) //TODO, fix later
+model.addInputs([])
+// model.addInputs(['currentRatio', 'cashRatio', 'costOfRevenue', 'inventory']);
+// model.addStocks(['AAPL', 'GOOG']);
+// model.generateModel().then((m) => {
+//    console.log(m)
+//    console.log(model.getHyperParams())
+// });
 
 
 var mainMenuQ = {
@@ -61,8 +71,13 @@ let inputsQ = {
    type: 'checkbox',
    name: 'inputs',
    message: 'Select Model Input Params',
-   choices: modelInputs
-}
+   choices: [
+      ...paramsBalance, 
+      ...paramsCustom,
+      ...paramsIncome,
+      ...paramsRatios
+   ] 
+};
 function addParams() {
    inquirer.prompt(inputsQ).then((a) => {
       model.addInputs(a.inputs);
