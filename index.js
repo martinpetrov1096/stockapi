@@ -7,20 +7,29 @@ const paramsRatios = require('./ModelBuilder/config/paramsRatios.json');
 const paramsBalance = require('./ModelBuilder/config/paramsBalance.json');
 const paramsIncome = require('./ModelBuilder/config/paramsIncome.json');
 const paramsCustom = require('./ModelBuilder/config/paramsCustom.json');
-const api = require('./ModelBuilder/api.js');
-const Stocks = require('./ModelBuilder/ModelBuilder.js');
+const api = require('./ModelBuilder/DataScraper/api.js');
+const Stocks = require('./ModelBuilder/DataScraper/DataScraper.js');
 
-let model = new Stocks.ModelBuilder();
-model.addOutputs(['daysOfPayablesOutstanding']) //TODO, fix later
-model.addInputs([])
-// model.addInputs(['currentRatio', 'cashRatio', 'costOfRevenue', 'inventory']);
-// model.addStocks(['AAPL', 'GOOG']);
-// model.generateModel().then((m) => {
-//    console.log(m)
-//    console.log(model.getHyperParams())
-// });
+///////////////////////////////////////////////////////////////////////
+///////////////////////////// EXAMPLE /////////////////////////////////
+///////////////////////////////////////////////////////////////////////
+
+let model = new Stocks.DataScraper();
+model.setLimit(3);
+model.addStocks(['AAPL', 'GOOG', 'GOOGL']);
+model.removeStock(['AAPL', 'GOOG'])
+model.addParams(['shortTermInvestments', 'revenue', 'cashRatio']);
+model.generateModel().then((m) => {
+   console.log(m);
+});
 
 
+/**
+ * Description. This is a super jank cli version of the program. I don't expect us 
+ * to actually use any of the code below, it was just a useful tool to debug stuff
+ * To "activate" it, just uncomment the mainMenu() call all the way at the bottom
+ * 
+ */
 var mainMenuQ = {
    type: 'list',
    name: 'mainMenu',
@@ -80,12 +89,10 @@ let inputsQ = {
 };
 function addParams() {
    inquirer.prompt(inputsQ).then((a) => {
-      model.addInputs(a.inputs);
+      model.addParams(a.inputs);
       mainMenu();
    });
 }
 
 
-
-
-mainMenu();
+//mainMenu();

@@ -1,9 +1,9 @@
 const myApi = require('./api.js');
-const cfg = require('./config/config.json');
-const paramsRatios = require('./config/paramsRatios.json');
-const paramsBalance = require('./config/paramsBalance.json');
-const paramsIncome = require('./config/paramsIncome.json');
-const paramsCustom = require('./config/paramsCustom.json');
+const cfg = require('../config/config.json');
+const paramsRatios = require('../config/paramsRatios.json');
+const paramsBalance = require('../config/paramsBalance.json');
+const paramsIncome = require('../config/paramsIncome.json');
+const paramsCustom = require('../config/paramsCustom.json');
 
 module.exports.getParam = async (param, stocks, period, limit) => {
    if (paramsRatios.includes(param)) {
@@ -16,7 +16,7 @@ module.exports.getParam = async (param, stocks, period, limit) => {
       return getStandard(cfg.api.endpoints.income, param, stocks, period, limit);
    } 
    else if (paramsCustom.includes(param)) {
-      params.custom(param);
+      return getCustom(param);
    } 
    else {
       throw new Error('Invalid Param');
@@ -24,28 +24,23 @@ module.exports.getParam = async (param, stocks, period, limit) => {
 }
 
 async function getStandard(endpoint, param, stocks, period, limit) {
-   let comps = [];
-   stocks.forEach((stock) => {
-      comps.push(myApi.getStandard(endpoint, stock, period, limit));
-   });
-
-   return Promise.all(comps).then((cmps) => {
+   return await myApi.getStandard(endpoint, stocks, period)
+   .then(async (cmps) => {
       let rtn = [];
       cmps.forEach((cmp) => {
-         cmp.forEach((quarter) => {
+         cmp.slice(0, limit).forEach((period) => {
             rtn.push({
-               'symbol': quarter['symbol'],
-               'date': quarter['date'],
-               [param]: quarter[param]
-            })
+               'symbol': period['symbol'],
+               'date': period['date'],
+               [param]: period[param]
+            });
          });
       });
-
-      return Promise.all(rtn);
+      return Promise.all(rtn)
    });
 }
 
-async function custom(param) {
+async function getCustom(param) {
 
 
 }

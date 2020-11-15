@@ -1,4 +1,5 @@
 {
+   "debug": true,
    "api": {
       "baseUrl": "https://financialmodelingprep.com/api/v3/",
       "cacheDir": "/cache/",
